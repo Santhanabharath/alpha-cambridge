@@ -1,0 +1,598 @@
+/* ============================================================
+   HERO SLIDER
+   ============================================================ */
+
+/* --- Outer Wrapper --- */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 640px;
+  max-height: 900px;
+  overflow: hidden;
+  /*
+    Reference image: rich sky-blue at top (#87CEEA)
+    → pale mid-blue in the middle
+    → warm white/cream at the bottom (#FFFEF0)
+  */
+  background:
+    linear-gradient(to bottom,
+      #87CEEA 0%,
+      #B0DEF0 18%,
+      #CDE9F5 32%,
+      #DFF0F8 46%,
+      #EEF6FA 60%,
+      #F7FAFB 74%,
+      #FDFAF4 86%,
+      #FFFEF0 100%);
+}
+
+/* --- Grid Background (moves subtly with slide) --- */
+.hero__grid {
+  position: absolute;
+  inset: -60px;
+  /* oversized so the subtle movement doesn't expose edges */
+  /*
+    Grid lines match the reference:
+    - More visible (blue-tinted) at top where bg is saturated
+    - Fade to barely-there at bottom where bg is warm white
+    We layer the grid over a vertical gradient mask so lines
+    naturally dissolve as the background lightens.
+  */
+  background-image:
+    linear-gradient(to right, rgba(100, 180, 220, 0.22) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(100, 180, 220, 0.22) 1px, transparent 1px);
+  background-size: 62px 62px;
+  /* Fade grid lines out toward the bottom to match reference */
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.15) 100%);
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.15) 100%);
+  will-change: transform;
+  pointer-events: none;
+}
+
+/* --- Slide Track — holds all slides side-by-side virtually --- */
+.hero__track {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* --- Individual Slide --- */
+.hero__slide {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  padding-top: 72px;
+  /* navbar height */
+  will-change: transform, opacity;
+  pointer-events: none;
+  /* disabled by default; active slide re-enables */
+}
+
+.hero__slide.is-active {
+  pointer-events: auto;
+}
+
+/* --- Inner Content Grid --- */
+.hero__slide-inner {
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 var(--space-6) var(--space-8);
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: var(--space-8);
+  align-items: center;
+  height: 100%;
+}
+
+/* --- Text Column --- */
+.hero__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  will-change: transform, opacity;
+}
+
+.hero__eyebrow {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--color-gray-600);
+  line-height: 1.4;
+  overflow: hidden;
+}
+
+/* Cambridge slide: eyebrow — scaled for two-column layout */
+.hero__slide--cambridge .hero__eyebrow {
+  font-size: clamp(1rem, 1.5vw, 1.5rem);
+  font-weight: 400;
+  color: #1A3B68;
+  line-height: normal;
+}
+
+.hero__eyebrow-inner {
+  display: block;
+  will-change: transform, opacity;
+}
+
+.hero__heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  line-height: 1.15;
+  overflow: hidden;
+}
+
+.hero__line {
+  display: block;
+  font-size: clamp(2.2rem, 4.2vw, 3.5rem);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  overflow: hidden;
+}
+
+.hero__line-inner {
+  display: block;
+  will-change: transform, opacity;
+}
+
+/* Strong = colored bold line */
+.hero__line--bold .hero__line-inner {
+  font-weight: 800;
+}
+
+/* Handwritten line */
+.hero__line--script .hero__line-inner {
+  font-family: var(--font-handwritten);
+  font-weight: 700;
+  font-size: clamp(2.4rem, 4.5vw, 3.8rem);
+  letter-spacing: -0.01em;
+}
+
+/* ============================================================
+   CAMBRIDGE SLIDE — EXACT FIGMA TYPOGRAPHY SPECIFICATION
+   ─────────────────────────────────────────────────────────
+   TEXT 1 (eyebrow): 36px / Inter / 400 / #1A3B68
+   TEXT 2 (Globally recognized): 70px / Inter / 700 / #1A3B68
+   TEXT 3 (English qualifications): 70px / Inter / 400 / #1A3B68
+   TEXT 4 (with Alpha [400] Cambridge [700]): 70px / Inter / mixed
+   TEXT 5 (Exam Centre.): 70px / Caveat / 700 / #1A3B68
+   ============================================================ */
+
+/* Base for every line in the Cambridge heading */
+.hero__slide--cambridge .hero__line {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: clamp(1.75rem, 3.5vw, 3.5rem);
+  font-weight: 400;
+  font-style: normal;
+  color: #1A3B68;
+  letter-spacing: -0.02em;
+  line-height: normal;
+}
+
+/* TEXT 2: "Globally recognized" — 700 Bold */
+.hero__slide--cambridge .hero__line--bold,
+.hero__slide--cambridge .hero__line--bold .hero__line-inner {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 700;
+  color: #1A3B68;
+}
+
+/* TEXT 4: mixed-weight line wrapper
+   .hero__line-inner stays display:block so the GSAP y-translate
+   overflow reveal still clips correctly. The <span> parts inside
+   are naturally inline so they flow side-by-side within that block. */
+.hero__slide--cambridge .hero__line--mixed .hero__line-inner {
+  display: block;
+}
+
+/* TEXT 4 — "with Alpha " part: 400 Regular */
+.hero__slide--cambridge .hero__line-part {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  color: #1A3B68;
+}
+
+/* TEXT 4 — "Cambridge" part: 700 Bold */
+.hero__slide--cambridge .hero__line-part--bold {
+  font-weight: 700;
+}
+
+/* TEXT 5: "Exam Centre." — Caveat 700 (Figma Hand equivalent) */
+.hero__slide--cambridge .hero__line--script .hero__line-inner {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.85rem, 3.8vw, 3.8rem);
+  font-weight: 700;
+  font-style: normal;
+  color: #1A3B68;
+  letter-spacing: normal;
+}
+
+/* --- CTA --- */
+.hero__cta-wrap {
+  margin-top: var(--space-4);
+  overflow: hidden;
+}
+
+.hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0.85rem 2.5rem;
+  border-radius: 30px;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: clamp(1.1rem, 2vw, 24px);
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  color: #FFC600;
+  transition: transform 0.2s, box-shadow 0.2s;
+  will-change: transform, opacity;
+}
+
+.hero__cta svg {
+  width: 22px;
+  height: 22px;
+}
+
+.hero__cta:hover {
+  transform: translateY(-2px);
+}
+
+.hero__cta:active {
+  transform: translateY(0);
+}
+
+/* Slide-specific CTA colors */
+.hero__slide--cambridge .hero__cta {
+  background: #1A3B68;
+  color: #FFC600;
+  box-shadow: none;
+}
+
+.hero__slide--cambridge .hero__cta:hover {
+  box-shadow: none;
+}
+
+.hero__slide--tkt .hero__cta {
+  background: #B0000B;
+  color: #FFC600;
+  box-shadow: none;
+}
+
+.hero__slide--tkt .hero__cta:hover {
+  box-shadow: none;
+}
+
+/* --- Slide Text Colors --- */
+/* Cambridge: all lines use Figma color #1A3B68 */
+.hero__slide--cambridge .hero__line-inner {
+  color: #1A3B68;
+}
+
+.hero__slide--cambridge .hero__line--bold .hero__line-inner {
+  color: #1A3B68;
+}
+
+.hero__slide--cambridge .hero__line--script .hero__line-inner {
+  color: #1A3B68;
+}
+
+/* ============================================================
+   TKT SLIDE — EXACT FIGMA TYPOGRAPHY SPECIFICATION
+   ─────────────────────────────────────────────────────────
+   TEXT 1 (eyebrow): 36px / Inter / 400 / #B0000B
+   TEXT 2 (Teaching Knowledge Test,): 46px / Inter / 700 / #B0000B
+   TEXT 3 (designed to strengthen): 46px / Inter / 400 / #B0000B
+   TEXT 4 (educators'): 46px / Inter / 400 / #B0000B
+   TEXT 5 (teaching): 70px / Caveat / 700 / #B0000B
+   TEXT 6 (skills.): 70px / Caveat / 700 / #B0000B
+   ============================================================ */
+
+/* TEXT 1 — eyebrow: scaled for two-column layout */
+.hero__slide--tkt .hero__eyebrow {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: clamp(1rem, 1.5vw, 1.375rem);
+  font-weight: 400;
+  font-style: normal;
+  color: #B0000B;
+  line-height: normal;
+}
+
+/* Base for every line in the TKT heading — matches Cambridge scale */
+.hero__slide--tkt .hero__line {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: clamp(1.75rem, 3.5vw, 3.5rem);
+  font-weight: 400;
+  font-style: normal;
+  color: #B0000B;
+  letter-spacing: -0.02em;
+  line-height: normal;
+}
+
+.hero__slide--tkt .hero__line-inner {
+  color: #B0000B;
+}
+
+/* TEXT 2 — "Teaching Knowledge Test,": 46px / 700 Bold */
+.hero__slide--tkt .hero__line--bold,
+.hero__slide--tkt .hero__line--bold .hero__line-inner {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-weight: 700;
+  color: #B0000B;
+}
+
+/* TEXT 5 & 6 — "teaching" / "skills.": Caveat, matches Cambridge script */
+.hero__slide--tkt .hero__line--script .hero__line-inner {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.85rem, 3.8vw, 3.8rem);
+  font-weight: 700;
+  font-style: normal;
+  color: #B0000B;
+  letter-spacing: normal;
+}
+
+/* TEXT 4 mixed line — "educators'" part: matches heading scale */
+.hero__slide--tkt .hero__line-part {
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: clamp(1.75rem, 3.5vw, 3.5rem);
+  font-weight: 400;
+  font-style: normal;
+  color: #B0000B;
+}
+
+/* TEXT 5 mixed line — " teaching" part: matches script scale */
+.hero__slide--tkt .hero__line-part--script {
+  font-family: 'Caveat', cursive;
+  font-size: clamp(1.85rem, 3.8vw, 3.8rem);
+  font-weight: 700;
+  color: #B0000B;
+  vertical-align: baseline;
+}
+
+/* --- Trust Badge (Cambridge slide only) --- */
+.hero__trust {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin-top: var(--space-6);
+  overflow: hidden;
+}
+
+.hero__trust-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  will-change: transform, opacity;
+}
+
+.hero__trust-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-gray-500);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.hero__trust-badge {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.hero__trust-logo {
+  display: inline-flex;
+  align-items: center;
+  max-width: max-content;
+}
+
+.hero__trust-logo-img {
+  height: 140px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* --- Image Column --- */
+.hero__image-wrap {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: visible;
+  will-change: transform, opacity;
+}
+
+.hero__image {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: 700px;
+  max-height: 700px;
+  object-fit: contain;
+  object-position: bottom center;
+  display: block;
+}
+
+/* Image glow halo */
+.hero__image-wrap::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100;
+  height: 280px;
+  border-radius: 50%;
+  filter: blur(60px);
+  opacity: 0.35;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.hero__slide--cambridge .hero__image-wrap::before {
+  background: radial-gradient(circle, #93c5fd, transparent);
+}
+
+.hero__slide--tkt .hero__image-wrap::before {
+  background: radial-gradient(circle, #fca5a5, transparent);
+}
+
+/* ============================================================
+   SLIDER CONTROLS
+   ============================================================ */
+.hero__controls {
+  position: absolute;
+  bottom: var(--space-8);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  z-index: var(--z-controls);
+}
+
+.hero__control-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-blue-800);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.10);
+}
+
+.hero__control-btn:hover {
+  background: rgba(255, 255, 255, 0.98);
+  transform: scale(1.08);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+}
+
+.hero__control-btn:active {
+  transform: scale(0.96);
+}
+
+.hero__control-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* --- Progress Indicators --- */
+.hero__progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.hero__progress-dot {
+  position: relative;
+  width: 32px;
+  height: 4px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.40);
+  overflow: hidden;
+  cursor: pointer;
+  transition: width 0.3s;
+}
+
+.hero__progress-dot.active {
+  width: 56px;
+}
+
+.hero__progress-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--color-white);
+  transform-origin: left;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px) {
+  .hero__slide-inner {
+    grid-template-columns: 1fr 340px;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    height: auto;
+    min-height: 100svh;
+    max-height: none;
+  }
+
+  .hero__slide {
+    align-items: flex-start;
+  }
+
+  .hero__slide-inner {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    padding-top: var(--space-6);
+    padding-bottom: var(--space-16);
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .hero__content {
+    order: 1;
+    padding-top: var(--space-4);
+  }
+
+  .hero__image-wrap {
+    order: 2;
+    height: 340px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .hero__image {
+    height: 100%;
+    max-height: 340px;
+    width: auto;
+    max-width: 100%;
+    border-radius: var(--radius-xl);
+    object-fit: contain;
+  }
+
+  .hero__line {
+    font-size: clamp(1.8rem, 6vw, 2.4rem);
+  }
+
+  .hero__line--script .hero__line-inner {
+    font-size: clamp(2rem, 6.5vw, 2.6rem);
+  }
+
+  .hero__controls {
+    bottom: var(--space-4);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero__slide-inner {
+    padding: 0 var(--space-4) var(--space-12);
+  }
+
+  .hero__image-wrap {
+    height: 280px;
+  }
+
+  .hero__image {
+    height: 280px;
+    max-width: 220px;
+  }
+}
